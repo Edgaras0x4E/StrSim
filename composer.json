@@ -1,0 +1,25 @@
+{
+    "name": "edgaras/strsim",
+    "description": "Collection of string similarity and distance algorithms in PHP including Levenshtein, Damerau-Levenshtein, Jaro-Winkler, and more",
+    "type": "library",
+    "homepage": "https://github.com/Edgaras0x4E/StrSim",
+    "license": "MIT",
+    "keywords": ["string", "similarity", "distance", "levenshtein", "damerau-levenshtein", "jaro", "jaro-winkler", "lcs", "smith-waterman", "needleman-wunsch", "cosine", "jaccard", "monge-elkan", "text", "fuzzy", "comparison", "algorithm"],
+    "autoload": {
+        "psr-4": {
+            "Edgaras\\StrSim\\": "src/"
+        }
+    }, 
+    "autoload-dev": {
+        "psr-4": {
+            "Edgaras\\StrSim\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    }
+}
