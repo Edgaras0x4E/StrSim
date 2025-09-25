@@ -4,7 +4,7 @@
     "type": "library",
     "homepage": "https://github.com/Edgaras0x4E/StrSim",
     "license": "MIT",
-    "keywords": ["string", "similarity", "distance", "levenshtein", "damerau-levenshtein", "jaro", "jaro-winkler", "lcs", "smith-waterman", "needleman-wunsch", "cosine", "jaccard", "monge-elkan", "text", "fuzzy", "comparison", "algorithm"],
+    "keywords": ["string", "similarity", "distance", "levenshtein", "damerau-levenshtein", "jaro", "jaro-winkler", "lcs", "smith-waterman", "needleman-wunsch", "cosine", "jaccard", "monge-elkan", "text", "fuzzy", "comparison", "algorithm", "multibyte"],
     "autoload": {
         "psr-4": {
             "Edgaras\\StrSim\\": "src/"

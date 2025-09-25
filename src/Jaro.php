@@ -3,8 +3,12 @@ namespace Edgaras\StrSim;
 
 class Jaro {
     public static function distance(string $s1, string $s2): float {
-        $len1 = strlen($s1);
-        $len2 = strlen($s2);
+        if (!mb_check_encoding($s1, 'UTF-8') || !mb_check_encoding($s2, 'UTF-8')) {
+            throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
+        }
+        
+        $len1 = mb_strlen($s1, 'UTF-8');
+        $len2 = mb_strlen($s2, 'UTF-8');
         if ($len1 === 0 && $len2 === 0) return 1.0;
 
         $matchDistance = max((int)(max($len1, $len2) / 2) - 1, 0);
@@ -19,7 +23,7 @@ class Jaro {
 
             for ($j = $start; $j < $end; $j++) {
                 if ($s2Matches[$j]) continue;
-                if ($s1[$i] !== $s2[$j]) continue;
+                if (mb_substr($s1, $i, 1, 'UTF-8') !== mb_substr($s2, $j, 1, 'UTF-8')) continue;
                 $s1Matches[$i] = $s2Matches[$j] = true;
                 $matches++;
                 break;
@@ -32,7 +36,7 @@ class Jaro {
         for ($i = 0; $i < $len1; $i++) {
             if (!$s1Matches[$i]) continue;
             while (!$s2Matches[$k]) $k++;
-            if ($s1[$i] !== $s2[$k]) $transpositions++;
+            if (mb_substr($s1, $i, 1, 'UTF-8') !== mb_substr($s2, $k, 1, 'UTF-8')) $transpositions++;
             $k++;
         }
 

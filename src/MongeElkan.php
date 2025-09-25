@@ -3,8 +3,12 @@ namespace Edgaras\StrSim;
 
 class MongeElkan {
     public static function similarity(string $a, string $b): float {
-        $wordsA = explode(' ', $a);
-        $wordsB = explode(' ', $b);
+        if (!mb_check_encoding($a, 'UTF-8') || !mb_check_encoding($b, 'UTF-8')) {
+            throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
+        }
+        
+        $wordsA = array_filter(preg_split('/\s+/u', trim($a)), function($word) { return $word !== ''; });
+        $wordsB = array_filter(preg_split('/\s+/u', trim($b)), function($word) { return $word !== ''; });
         $total = 0.0;
 
         foreach ($wordsA as $wa) {
@@ -16,6 +20,6 @@ class MongeElkan {
             $total += $maxSim;
         }
 
-        return $total / count($wordsA);
+        return count($wordsA) > 0 ? $total / count($wordsA) : 0.0;
     }
 }
