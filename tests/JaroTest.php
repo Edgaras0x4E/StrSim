@@ -7,142 +7,263 @@ use Edgaras\StrSim\Jaro;
 
 class JaroTest extends TestCase
 {
-    public function testIdenticalStrings()
+   
+    public function testSimilarityIdenticalStrings()
     {
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("martha", "martha"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("martha", "martha"), 1e-10);
     }
 
-    public function testCompletelyDifferentStrings()
+    public function testSimilarityCompletelyDifferentStrings()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("abc", "xyz"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("abc", "xyz"), 1e-10);
     }
 
-    public function testPartialMatch()
+    public function testSimilarityPartialMatch()
     {
         $expected = 0.9444444444;
+        $actual = Jaro::similarity("martha", "marhta");
+        $this->assertEqualsWithDelta($expected, $actual, 1e-6);
+    }
+
+    public function testSimilarityCaseWithSomeOverlap()
+    {
+        $expected = 0.8222222222;
+        $actual = Jaro::similarity("dwayne", "duane");
+        $this->assertEqualsWithDelta($expected, $actual, 1e-6);
+    }
+
+    public function testSimilarityEmptyStrings()
+    {
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("", ""), 1e-10);
+    }
+
+    public function testSimilarityOneEmptyString()
+    {
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("abc", ""), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("", "abc"), 1e-10);
+    }
+
+    public function testSimilaritySingleCharacterMismatch()
+    {
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("a", "b"), 1e-10);
+    }
+
+    public function testSimilaritySingleCharacterMatch()
+    {
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("a", "a"), 1e-10);
+    }
+ 
+    public function testDistanceIdenticalStrings()
+    {
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("martha", "martha"), 1e-10);
+    }
+
+    public function testDistanceCompletelyDifferentStrings()
+    {
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("abc", "xyz"), 1e-10);
+    }
+
+    public function testDistancePartialMatch()
+    {
+        $expected = 1.0 - 0.9444444444;
         $actual = Jaro::distance("martha", "marhta");
         $this->assertEqualsWithDelta($expected, $actual, 1e-6);
     }
 
-    public function testCaseWithSomeOverlap()
+    public function testDistanceCaseWithSomeOverlap()
     {
-        $expected = 0.8222222222;
+        $expected = 1.0 - 0.8222222222;
         $actual = Jaro::distance("dwayne", "duane");
         $this->assertEqualsWithDelta($expected, $actual, 1e-6);
     }
 
-    public function testEmptyStrings()
+    public function testDistanceEmptyStrings()
     {
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("", ""), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("", ""), 1e-10);
     }
 
-    public function testOneEmptyString()
+    public function testDistanceOneEmptyString()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("abc", ""), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("", "abc"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("abc", ""), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("", "abc"), 1e-10);
     }
 
-    public function testSingleCharacterMismatch()
+    public function testDistanceSingleCharacterMismatch()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("a", "b"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("a", "b"), 1e-10);
     }
 
-    public function testSingleCharacterMatch()
+    public function testDistanceSingleCharacterMatch()
     {
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("a", "a"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("a", "a"), 1e-10);
+    }
+ 
+    public function testSimilarityMultibyteIdenticalStrings()
+    {
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("café", "café"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("🚀🌟", "🚀🌟"), 1e-10);
     }
 
-    public function testMultibyteIdenticalStrings()
+    public function testSimilarityMultibytePartialMatch()
     {
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("café", "café"), 1e-10);
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("🚀🌟", "🚀🌟"), 1e-10);
+        $result = Jaro::similarity("café", "caffé");
+        $this->assertGreaterThan(0, $result);
+        $this->assertLessThan(1, $result);
     }
 
-    public function testMultibytePartialMatch()
+    public function testSimilarityJapaneseCharacters()
+    {
+        $result = Jaro::similarity("こんにちは", "こんにちわ");
+        $this->assertGreaterThan(0, $result);
+        $this->assertLessThan(1, $result);
+    }
+
+    public function testSimilarityEmojiSupport()
+    {
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("🚀", "🚀"), 1e-10);
+        $result = Jaro::similarity("🚀🌟", "🚀⭐");
+        $this->assertGreaterThan(0, $result);
+        $this->assertLessThan(1, $result);
+    }
+
+    public function testSimilarityCyrillicCharacters()
+    {
+        $result = Jaro::similarity("собака", "собаки");
+        $this->assertGreaterThan(0, $result);
+        $this->assertLessThan(1, $result);
+    }
+
+    public function testSimilarityHebrewCharacters()
+    {
+        $result = Jaro::similarity("עברית", "עבדית");
+        $this->assertGreaterThan(0, $result);
+        $this->assertLessThan(1, $result);
+    }
+
+    public function testSimilarityMixedAsciiMultibyte()
+    {
+        $result = Jaro::similarity("hello café", "hello cafe");
+        $this->assertGreaterThan(0, $result);
+        $this->assertLessThan(1, $result);
+    }
+
+    public function testSimilarityMultibyteCompletelyDifferent()
+    {
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("café", "🚀🌟"), 1e-10);
+    }
+
+    public function testSimilarityMultibyteWithEmptyString()
+    {
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("café", ""), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("🚀🌟", ""), 1e-10);
+    }
+
+    public function testSimilaritySingleMultibyteCharacter()
+    {
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("é", "é"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::similarity("é", "ö"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::similarity("🚀", "🚀"), 1e-10);
+    }
+ 
+    public function testDistanceMultibyteIdenticalStrings()
+    {
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("café", "café"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("🚀🌟", "🚀🌟"), 1e-10);
+    }
+
+    public function testDistanceMultibytePartialMatch()
     {
         $result = Jaro::distance("café", "caffé");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testJapaneseCharacters()
+    public function testDistanceJapaneseCharacters()
     {
         $result = Jaro::distance("こんにちは", "こんにちわ");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testEmojiSupport()
+    public function testDistanceEmojiSupport()
     {
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("🚀", "🚀"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("🚀", "🚀"), 1e-10);
         $result = Jaro::distance("🚀🌟", "🚀⭐");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testCyrillicCharacters()
+    public function testDistanceCyrillicCharacters()
     {
         $result = Jaro::distance("собака", "собаки");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testHebrewCharacters()
+    public function testDistanceHebrewCharacters()
     {
         $result = Jaro::distance("עברית", "עבדית");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testMixedAsciiMultibyte()
+    public function testDistanceMixedAsciiMultibyte()
     {
         $result = Jaro::distance("hello café", "hello cafe");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testMultibyteCompletelyDifferent()
+    public function testDistanceMultibyteCompletelyDifferent()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("café", "🚀🌟"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("café", "🚀🌟"), 1e-10);
     }
 
-    public function testMultibyteWithEmptyString()
+    public function testDistanceMultibyteWithEmptyString()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("café", ""), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("🚀🌟", ""), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("café", ""), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("🚀🌟", ""), 1e-10);
     }
 
-    public function testSingleMultibyteCharacter()
+    public function testDistanceSingleMultibyteCharacter()
     {
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("é", "é"), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("é", "ö"), 1e-10);
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("🚀", "🚀"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("é", "é"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("é", "ö"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("🚀", "🚀"), 1e-10);
     }
 
-    public function testWindowBoundaryCases()
+    public function testDistanceWindowBoundaryCases()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("a", "b"), 1e-10);
-        $this->assertEqualsWithDelta(1.0, Jaro::distance("a", "a"), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("ab", "cd"), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("ab", "ba"), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("abcd", "efgh"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("a", "b"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Jaro::distance("a", "a"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("ab", "cd"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("ab", "ba"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("abcd", "efgh"), 1e-10);
     }
 
-    public function testExactJaroValues()
+    public function testDistanceExactJaroValues()
     {
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("abc", "xyz"), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("a", "b"), 1e-10);
-        $this->assertEqualsWithDelta(0.0, Jaro::distance("ab", "cd"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("abc", "xyz"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("a", "b"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, Jaro::distance("ab", "cd"), 1e-10);
         $result = Jaro::distance("abcdef", "fedcba");
         $this->assertGreaterThan(0.0, $result);
         $this->assertLessThan(1.0, $result);
     }
 
-    public function testInvalidUtf8Input()
+    public function testInvalidUtf8InputDistance()
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Input strings must be valid UTF-8.");
         $invalid = "\xFF\xFF";
         Jaro::distance($invalid, "test");
+    }
+
+    public function testInvalidUtf8InputSimilarity()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Input strings must be valid UTF-8.");
+        $invalid = "\xFF\xFF";
+        Jaro::similarity($invalid, "test");
     }
 }

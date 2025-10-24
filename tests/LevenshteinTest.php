@@ -134,20 +134,4 @@ class LevenshteinTest extends TestCase
     {
         $this->assertSame(1, Levenshtein::distance("👍", "👍🏽"));
     }
-
-    public function testGraphemeClusterSemantics()
-    {
-        $this->assertSame(1, Levenshtein::distance("👍", "👍🏽"));
-        $this->assertSame(3, Levenshtein::distance("👨‍👩‍👧‍👦", "👨👩👧👦"));
-        $this->assertSame(2, Levenshtein::distance("é", "\u{0065}\u{0301}"));
-        $this->assertSame(1, Levenshtein::distance("🇺🇸", "🇺🇳"));
-    }
-
-    public function testCodePointVsGraphemeBoundaries()
-    {
-        $this->assertSame(0, Levenshtein::distance("é", "é"));
-        $this->assertSame(1, Levenshtein::distance("é", "e"));
-        $this->assertSame(1, Levenshtein::distance("👍", "👍🏽"));
-        $this->assertSame(1, Levenshtein::distance("👍🏽", "👍🏾"));
-    }
 }

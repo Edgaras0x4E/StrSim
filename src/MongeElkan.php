@@ -9,17 +9,26 @@ class MongeElkan {
         
         $wordsA = array_filter(preg_split('/\s+/u', trim($a)), function($word) { return $word !== ''; });
         $wordsB = array_filter(preg_split('/\s+/u', trim($b)), function($word) { return $word !== ''; });
+         
+        if (count($wordsA) === 0 && count($wordsB) === 0) {
+            return 1.0;
+        }
+        
+        if (count($wordsA) === 0 || count($wordsB) === 0) {
+            return 0.0;
+        }
+        
         $total = 0.0;
 
         foreach ($wordsA as $wa) {
             $maxSim = 0.0;
             foreach ($wordsB as $wb) {
-                $sim = JaroWinkler::distance($wa, $wb);
+                $sim = JaroWinkler::similarity($wa, $wb);
                 $maxSim = max($maxSim, $sim);
             }
             $total += $maxSim;
         }
 
-        return count($wordsA) > 0 ? $total / count($wordsA) : 0.0;
+        return $total / count($wordsA);
     }
 }

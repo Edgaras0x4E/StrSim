@@ -1,6 +1,24 @@
-# StrSim v1.1.0
+# StrSim v1.1.1
 
 A collection of string similarity and distance algorithms implemented in PHP with full Unicode and multibyte character support. This library provides standalone static methods for computing various similarity metrics, useful in natural language processing, fuzzy matching, spell checking, and bioinformatics.
+
+## What's New in v1.1.1
+
+### 🔧 **Fixed Naming Issues** 
+- **Fixed `Jaro::distance()`** - Previously returned similarity values (1.0 = identical), now correctly returns distance values (0.0 = identical)
+- **Fixed `JaroWinkler::distance()`** - Previously returned similarity values (1.0 = identical), now correctly returns distance values (0.0 = identical)
+
+### ✨ **New Functions Added**
+- **`Jaro::similarity()`** - Returns proper similarity values (1.0 = identical, 0.0 = completely different)
+- **`JaroWinkler::similarity()`** - Returns proper similarity values (1.0 = identical, 0.0 = completely different)
+
+### 📚 **Improvements**
+- **Better MongeElkan** - Fixed edge cases for empty string comparisons
+
+### 🔄 **Migration Guide**
+If you were using `Jaro::distance()` or `JaroWinkler::distance()` expecting similarity values (where 1.0 = identical):
+- **Before**: `Jaro::distance("hello", "hello")` returned `1.0`
+- **After**: Use `Jaro::similarity("hello", "hello")` to get `1.0`, or `Jaro::distance("hello", "hello")` returns `0.0`
 
 ---
 
@@ -30,23 +48,41 @@ require __DIR__ . '/vendor/autoload.php';
 - **Error Handling**: Proper exception types with descriptive messages
 - **Code-Point Based**: Consistent behavior across all Unicode normalization forms
 - **Optimized Tokenization**: Smart whitespace handling for text-based algorithms
+- **Distance vs Similarity**: Clear distinction between distance measures (0 = identical) and similarity measures (1 = identical)
 
 ## Supported Algorithms
 
-| Class               | Method                     | Description                                                          |
-|--------------------|----------------------------|----------------------------------------------------------------------|
-| `Levenshtein`      | `distance()`               | Measures the number of insertions, deletions, or substitutions.      |
-| `DamerauLevenshtein` | `distance()`             | Levenshtein with transpositions included.                            |
-| `Hamming`          | `distance()`               | Counts differing positions (requires equal-length strings).          |
-| `Jaro`             | `distance()`               | Measures similarity based on character matches and transpositions.   |
-| `JaroWinkler`      | `distance()`               | Jaro with a prefix match boost for similar string starts.            |
-| `LCS`              | `length()`                 | Returns the length of the longest common subsequence.                |
-| `SmithWaterman`    | `score()`                  | Local alignment scoring for best-matching subsequences.              |
-| `NeedlemanWunsch`  | `score()`                  | Global alignment scoring for entire string similarity.               |
-| `Cosine`           | `similarity()`             | Measures similarity via character frequency vectors.                 |
-| `Cosine`           | `similarityFromVectors()`  | Computes cosine similarity for numeric vector inputs.                |
-| `Jaccard`          | `index()`                  | Ratio of shared to total unique characters.                          |
-| `MongeElkan`       | `similarity()`             | Average best-word similarity using Jaro-Winkler internally.          |
+| Class               | Method                     | Return Range | Description                                                          |
+|--------------------|----------------------------|--------------|----------------------------------------------------------------------|
+| `Levenshtein`      | `distance()`               | 0 to ∞       | Number of insertions, deletions, or substitutions needed.           |
+| `DamerauLevenshtein` | `distance()`             | 0 to ∞       | Levenshtein with transpositions included.                           |
+| `Hamming`          | `distance()`               | 0 to ∞       | Number of differing positions (requires equal-length strings).      |
+| `Jaro`             | `similarity()`             | 0.0 to 1.0   | Similarity based on character matches and transpositions.           |
+| `Jaro`             | `distance()`               | 0.0 to 1.0   | Distance measure (1 - similarity).                                  |
+| `JaroWinkler`      | `similarity()`             | 0.0 to 1.0   | Jaro with a prefix match boost for similar string starts.           |
+| `JaroWinkler`      | `distance()`               | 0.0 to 1.0   | Distance measure (1 - similarity).                                  |
+| `LCS`              | `length()`                 | 0 to ∞       | Length of the longest common subsequence.                           |
+| `SmithWaterman`    | `score()`                  | 0 to ∞       | Local alignment scoring for best-matching subsequences.             |
+| `NeedlemanWunsch`  | `score()`                  | -∞ to ∞      | Global alignment scoring for entire string similarity.              |
+| `Cosine`           | `similarity()`             | 0.0 to 1.0   | Similarity via character frequency vectors.                         |
+| `Cosine`           | `similarityFromVectors()`  | -1.0 to 1.0  | Cosine similarity for numeric vector inputs.                        |
+| `Jaccard`          | `index()`                  | 0.0 to 1.0   | Ratio of shared to total unique characters.                         |
+| `MongeElkan`       | `similarity()`             | 0.0 to 1.0   | Average best-word similarity using Jaro-Winkler internally.         |
+
+## Understanding Distance vs Similarity
+
+This library provides both **distance** and **similarity** measures for certain algorithms:
+
+- **Distance measures**: Return `0.0` for identical strings and higher values for more different strings
+  - Examples: `Levenshtein::distance()`, `Hamming::distance()`, `Jaro::distance()`, `JaroWinkler::distance()`
+  
+- **Similarity measures**: Return `1.0` for identical strings and lower values for more different strings  
+  - Examples: `Cosine::similarity()`, `Jaccard::index()`, `Jaro::similarity()`, `JaroWinkler::similarity()`
+
+For Jaro and Jaro-Winkler algorithms, both functions are available:
+- `similarity()` returns values from 0.0 (completely different) to 1.0 (identical)
+- `distance()` returns values from 0.0 (identical) to 1.0 (completely different)
+- The relationship is: `distance = 1.0 - similarity`
 
 ## Usage
 
@@ -75,10 +111,12 @@ DamerauLevenshtein::distance("abcd", "acbd");  // Returns: 1
 Hamming::distance("1011101", "1001001");  // Returns: 2
 
 // Comparing short strings with transposition support
-Jaro::distance("dixon", "dicksonx");  // Returns: 0.767
+Jaro::similarity("dixon", "dicksonx");  // Returns: 0.767 (similarity)
+Jaro::distance("dixon", "dicksonx");    // Returns: 0.233 (distance = 1 - similarity)
 
 // Matching names with common prefixes
-JaroWinkler::distance("martha", "marhta");  // Returns: 0.961
+JaroWinkler::similarity("martha", "marhta");  // Returns: 0.961 (similarity)
+JaroWinkler::distance("martha", "marhta");    // Returns: 0.039 (distance = 1 - similarity)
 
 // Finding common subsequence in DNA fragments
 LCS::length("ACCGGTCGAGTGCGCGGAAGCCGGCCGAA", "GTCGTTCGGAATGCCGTTGCTCTGTAAA"); // Returns: 13
@@ -114,8 +152,10 @@ Levenshtein::distance("🚀🌟", "🚀⭐");  // Returns: 1
 Hamming::distance("👍🏽", "👍🏾");  // Returns: 1
 
 // Different scripts and languages
-Jaro::distance("привет", "привет");  // Returns: 1.0
-JaroWinkler::distance("عربي", "عربى");  // Returns: 0.9
+Jaro::similarity("привет", "привет");  // Returns: 1.0 (identical)
+Jaro::distance("привет", "привет");    // Returns: 0.0 (no distance)
+JaroWinkler::similarity("عربي", "عربى");  // Returns: 0.9 (high similarity)
+JaroWinkler::distance("عربي", "عربى");    // Returns: 0.1 (low distance)
 
 // ZWJ sequences and combining marks
 Levenshtein::distance("👨‍👩‍👧‍👦", "👨👩👧👦");  // Returns: 3
@@ -132,7 +172,8 @@ SmithWaterman::score("ACGT", "ACGT", match: 5, mismatch: -2, gap: -1);  // Retur
 NeedlemanWunsch::score("ACGT", "ACGT", match: 3, mismatch: -1, gap: -2);  // Returns: 12
 
 // Jaro-Winkler with custom prefix scaling
-JaroWinkler::distance("prefix_test", "prefix_demo", 0.2);  // Custom scale factor
+JaroWinkler::similarity("prefix_test", "prefix_demo", 0.2);  // Custom scale factor for similarity
+JaroWinkler::distance("prefix_test", "prefix_demo", 0.2);    // Custom scale factor for distance
 ```
 
 ### Error Handling

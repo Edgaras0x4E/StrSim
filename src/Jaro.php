@@ -2,7 +2,8 @@
 namespace Edgaras\StrSim;
 
 class Jaro {
-    public static function distance(string $s1, string $s2): float {
+ 
+    public static function similarity(string $s1, string $s2): float {
         if (!mb_check_encoding($s1, 'UTF-8') || !mb_check_encoding($s2, 'UTF-8')) {
             throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
         }
@@ -41,5 +42,9 @@ class Jaro {
         }
 
         return (($matches / $len1) + ($matches / $len2) + (($matches - $transpositions / 2) / $matches)) / 3.0;
+    }
+ 
+    public static function distance(string $s1, string $s2): float {
+        return 1.0 - self::similarity($s1, $s2);
     }
 }

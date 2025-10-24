@@ -2,12 +2,13 @@
 namespace Edgaras\StrSim;
 
 class JaroWinkler {
-    public static function distance(string $s1, string $s2, float $prefixScale = 0.1): float {
+ 
+    public static function similarity(string $s1, string $s2, float $prefixScale = 0.1): float {
         if (!mb_check_encoding($s1, 'UTF-8') || !mb_check_encoding($s2, 'UTF-8')) {
             throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
         }
         
-        $jaro = Jaro::distance($s1, $s2);
+        $jaro = Jaro::similarity($s1, $s2);
         $prefix = 0;
         $maxPrefix = 4;
 
@@ -17,5 +18,9 @@ class JaroWinkler {
         }
 
         return $jaro + $prefix * $prefixScale * (1 - $jaro);
+    }
+ 
+    public static function distance(string $s1, string $s2, float $prefixScale = 0.1): float {
+        return 1.0 - self::similarity($s1, $s2, $prefixScale);
     }
 }
