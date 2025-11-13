@@ -1,44 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Edgaras\StrSim\Tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Edgaras\StrSim\Jaro;
 use Edgaras\StrSim\JaroWinkler;
 
+#[CoversClass(JaroWinkler::class)]
+#[UsesClass(Jaro::class)]
 class JaroWinklerTest extends TestCase
-{ 
-    public function testSimilarityIdenticalStrings()
+{
+    public function testSimilarityIdenticalStrings(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("martha", "martha"), 1e-10);
     }
 
-    public function testSimilarityCompletelyDifferentStrings()
+    public function testSimilarityCompletelyDifferentStrings(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("abc", "xyz"), 1e-10);
     }
 
-    public function testSimilarityKnownPairMARTHAvsMARHTA()
+    public function testSimilarityKnownPairMARTHAvsMARHTA(): void
     {
-        $jaro = Jaro::similarity("martha", "marhta");  
+        $jaro = Jaro::similarity("martha", "marhta");
         $prefix = 3;
         $expected = $jaro + $prefix * 0.1 * (1 - $jaro);
         $actual = JaroWinkler::similarity("martha", "marhta");
         $this->assertEqualsWithDelta($expected, $actual, 1e-6);
     }
 
-    public function testSimilarityPrefixLimit()
-    { 
+    public function testSimilarityPrefixLimit(): void
+    {
         $a = "prefix_match_1";
         $b = "prefix_match_2";
 
         $jaro = Jaro::similarity($a, $b);
-        $expected = $jaro + 4 * 0.1 * (1 - $jaro);  
+        $expected = $jaro + 4 * 0.1 * (1 - $jaro);
         $actual = JaroWinkler::similarity($a, $b);
         $this->assertEqualsWithDelta($expected, $actual, 1e-6);
     }
 
-    public function testSimilarityNoCommonPrefix()
+    public function testSimilarityNoCommonPrefix(): void
     {
         $a = "xxxxx";
         $b = "yyyyy";
@@ -47,58 +53,58 @@ class JaroWinklerTest extends TestCase
         $this->assertEqualsWithDelta($expected, JaroWinkler::similarity($a, $b), 1e-10);
     }
 
-    public function testSimilarityEmptyStrings()
+    public function testSimilarityEmptyStrings(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("", ""), 1e-10);
     }
 
-    public function testSimilarityOneEmptyString()
+    public function testSimilarityOneEmptyString(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("abc", ""), 1e-10);
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("", "xyz"), 1e-10);
     }
 
-    public function testSimilaritySingleCharMatch()
+    public function testSimilaritySingleCharMatch(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("a", "a"), 1e-10);
     }
 
-    public function testSimilaritySingleCharMismatch()
+    public function testSimilaritySingleCharMismatch(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("a", "b"), 1e-10);
     }
- 
-    public function testDistanceIdenticalStrings()
+
+    public function testDistanceIdenticalStrings(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("martha", "martha"), 1e-10);
     }
 
-    public function testDistanceCompletelyDifferentStrings()
+    public function testDistanceCompletelyDifferentStrings(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("abc", "xyz"), 1e-10);
     }
 
-    public function testDistanceKnownPairMARTHAvsMARHTA()
+    public function testDistanceKnownPairMARTHAvsMARHTA(): void
     {
-        $jaro = Jaro::similarity("martha", "marhta");  
+        $jaro = Jaro::similarity("martha", "marhta");
         $prefix = 3;
         $expected = 1.0 - ($jaro + $prefix * 0.1 * (1 - $jaro));
         $actual = JaroWinkler::distance("martha", "marhta");
         $this->assertEqualsWithDelta($expected, $actual, 1e-6);
     }
 
-    public function testDistancePrefixLimit()
-    { 
+    public function testDistancePrefixLimit(): void
+    {
         $a = "prefix_match_1";
         $b = "prefix_match_2";
 
         $jaro = Jaro::similarity($a, $b);
-        $expected = 1.0 - ($jaro + 4 * 0.1 * (1 - $jaro));  
+        $expected = 1.0 - ($jaro + 4 * 0.1 * (1 - $jaro));
         $actual = JaroWinkler::distance($a, $b);
         $this->assertEqualsWithDelta($expected, $actual, 1e-6);
     }
 
-    public function testDistanceNoCommonPrefix()
+    public function testDistanceNoCommonPrefix(): void
     {
         $a = "xxxxx";
         $b = "yyyyy";
@@ -107,113 +113,113 @@ class JaroWinklerTest extends TestCase
         $this->assertEqualsWithDelta($expected, JaroWinkler::distance($a, $b), 1e-10);
     }
 
-    public function testDistanceEmptyStrings()
+    public function testDistanceEmptyStrings(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("", ""), 1e-10);
     }
 
-    public function testDistanceOneEmptyString()
+    public function testDistanceOneEmptyString(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("abc", ""), 1e-10);
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("", "xyz"), 1e-10);
     }
 
-    public function testDistanceSingleCharMatch()
+    public function testDistanceSingleCharMatch(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("a", "a"), 1e-10);
     }
 
-    public function testDistanceSingleCharMismatch()
+    public function testDistanceSingleCharMismatch(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("a", "b"), 1e-10);
     }
- 
-    public function testSimilarityMultibyteIdenticalStrings()
+
+    public function testSimilarityMultibyteIdenticalStrings(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("café", "café"), 1e-10);
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("🚀🌟", "🚀🌟"), 1e-10);
     }
 
-    public function testSimilarityMultibytePartialMatch()
+    public function testSimilarityMultibytePartialMatch(): void
     {
         $result = JaroWinkler::similarity("café", "caffé");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testSimilarityJapaneseCharacters()
+    public function testSimilarityJapaneseCharacters(): void
     {
         $result = JaroWinkler::similarity("こんにちは", "こんにちわ");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testSimilarityEmojiSupport()
+    public function testSimilarityEmojiSupport(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("🚀", "🚀"), 1e-10);
         $this->assertEqualsWithDelta(Jaro::similarity("🚀🌟", "🚀⭐") + 0.1 * (1 - Jaro::similarity("🚀🌟", "🚀⭐")), JaroWinkler::similarity("🚀🌟", "🚀⭐"), 1e-6);
     }
 
-    public function testSimilarityCyrillicCharacters()
+    public function testSimilarityCyrillicCharacters(): void
     {
         $result = JaroWinkler::similarity("собака", "собаки");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testSimilarityHebrewCharacters()
+    public function testSimilarityHebrewCharacters(): void
     {
         $result = JaroWinkler::similarity("עברית", "עבדית");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testSimilarityMixedAsciiMultibyte()
+    public function testSimilarityMixedAsciiMultibyte(): void
     {
         $result = JaroWinkler::similarity("hello café", "hello cafe");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testSimilarityMultibyteCompletelyDifferent()
+    public function testSimilarityMultibyteCompletelyDifferent(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("café", "🚀🌟"), 1e-10);
     }
 
-    public function testSimilarityMultibyteWithEmptyString()
+    public function testSimilarityMultibyteWithEmptyString(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("café", ""), 1e-10);
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("🚀🌟", ""), 1e-10);
     }
 
-    public function testSimilaritySingleMultibyteCharacter()
+    public function testSimilaritySingleMultibyteCharacter(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("é", "é"), 1e-10);
         $this->assertEqualsWithDelta(0.0, JaroWinkler::similarity("é", "ö"), 1e-10);
         $this->assertEqualsWithDelta(1.0, JaroWinkler::similarity("🚀", "🚀"), 1e-10);
     }
- 
-    public function testDistanceMultibyteIdenticalStrings()
+
+    public function testDistanceMultibyteIdenticalStrings(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("café", "café"), 1e-10);
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("🚀🌟", "🚀🌟"), 1e-10);
     }
 
-    public function testDistanceMultibytePartialMatch()
+    public function testDistanceMultibytePartialMatch(): void
     {
         $result = JaroWinkler::distance("café", "caffé");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testDistanceJapaneseCharacters()
+    public function testDistanceJapaneseCharacters(): void
     {
         $result = JaroWinkler::distance("こんにちは", "こんにちわ");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testDistanceEmojiSupport()
+    public function testDistanceEmojiSupport(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("🚀", "🚀"), 1e-10);
         $jaroSim = Jaro::similarity("🚀🌟", "🚀⭐");
@@ -221,60 +227,60 @@ class JaroWinklerTest extends TestCase
         $this->assertEqualsWithDelta(1.0 - $expectedSim, JaroWinkler::distance("🚀🌟", "🚀⭐"), 1e-6);
     }
 
-    public function testDistanceCyrillicCharacters()
+    public function testDistanceCyrillicCharacters(): void
     {
         $result = JaroWinkler::distance("собака", "собаки");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testDistanceHebrewCharacters()
+    public function testDistanceHebrewCharacters(): void
     {
         $result = JaroWinkler::distance("עברית", "עבדית");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testDistanceMixedAsciiMultibyte()
+    public function testDistanceMixedAsciiMultibyte(): void
     {
         $result = JaroWinkler::distance("hello café", "hello cafe");
         $this->assertGreaterThan(0, $result);
         $this->assertLessThan(1, $result);
     }
 
-    public function testDistanceMultibyteCompletelyDifferent()
+    public function testDistanceMultibyteCompletelyDifferent(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("café", "🚀🌟"), 1e-10);
     }
 
-    public function testDistanceMultibyteWithEmptyString()
+    public function testDistanceMultibyteWithEmptyString(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("café", ""), 1e-10);
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("🚀🌟", ""), 1e-10);
     }
 
-    public function testDistanceSingleMultibyteCharacter()
+    public function testDistanceSingleMultibyteCharacter(): void
     {
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("é", "é"), 1e-10);
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("é", "ö"), 1e-10);
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("🚀", "🚀"), 1e-10);
     }
 
-    public function testSimilarityMultibytePrefix()
+    public function testSimilarityMultibytePrefix(): void
     {
         $withoutPrefix = JaroWinkler::similarity("ébcdef", "éxydef");
         $withPrefix = JaroWinkler::similarity("éébcdef", "ééxydef");
         $this->assertGreaterThan($withoutPrefix, $withPrefix);
     }
 
-    public function testSimilarityMultibytePrefixScale()
+    public function testSimilarityMultibytePrefixScale(): void
     {
         $defaultScale = JaroWinkler::similarity("café", "cafe");
         $customScale = JaroWinkler::similarity("café", "cafe", 0.2);
         $this->assertNotEquals($defaultScale, $customScale);
     }
 
-    public function testSimilarityPrefixScaleValidation()
+    public function testSimilarityPrefixScaleValidation(): void
     {
         $base = Jaro::similarity("martha", "marhta");
         $scale1 = JaroWinkler::similarity("martha", "marhta", 0.1);
@@ -286,21 +292,21 @@ class JaroWinklerTest extends TestCase
         $this->assertGreaterThan($scale1, $scale2);
     }
 
-    public function testDistanceMultibytePrefix()
+    public function testDistanceMultibytePrefix(): void
     {
         $withoutPrefix = JaroWinkler::distance("ébcdef", "éxydef");
         $withPrefix = JaroWinkler::distance("éébcdef", "ééxydef");
-        $this->assertLessThan($withoutPrefix, $withPrefix);  
+        $this->assertLessThan($withoutPrefix, $withPrefix);
     }
 
-    public function testDistanceMultibytePrefixScale()
+    public function testDistanceMultibytePrefixScale(): void
     {
         $defaultScale = JaroWinkler::distance("café", "cafe");
         $customScale = JaroWinkler::distance("café", "cafe", 0.2);
         $this->assertNotEquals($defaultScale, $customScale);
     }
 
-    public function testDistancePrefixScaleValidation()
+    public function testDistancePrefixScaleValidation(): void
     {
         $base = Jaro::similarity("martha", "marhta");
         $scale1 = JaroWinkler::distance("martha", "marhta", 0.1);
@@ -309,10 +315,10 @@ class JaroWinklerTest extends TestCase
         $expected2 = 1.0 - ($base + 3 * 0.2 * (1 - $base));
         $this->assertEqualsWithDelta($expected1, $scale1, 1e-6);
         $this->assertEqualsWithDelta($expected2, $scale2, 1e-6);
-        $this->assertLessThan($scale1, $scale2);  
+        $this->assertLessThan($scale1, $scale2);
     }
 
-    public function testDistanceWindowBoundaryCases()
+    public function testDistanceWindowBoundaryCases(): void
     {
         $this->assertEqualsWithDelta(1.0, JaroWinkler::distance("a", "b"), 1e-10);
         $this->assertEqualsWithDelta(0.0, JaroWinkler::distance("a", "a"), 1e-10);
@@ -321,7 +327,7 @@ class JaroWinklerTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $result, 1e-10);
     }
 
-    public function testInvalidUtf8InputDistance()
+    public function testInvalidUtf8InputDistance(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Input strings must be valid UTF-8.");
@@ -329,7 +335,7 @@ class JaroWinklerTest extends TestCase
         JaroWinkler::distance($invalid, "test");
     }
 
-    public function testInvalidUtf8InputSimilarity()
+    public function testInvalidUtf8InputSimilarity(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Input strings must be valid UTF-8.");

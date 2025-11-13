@@ -1,8 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Edgaras\StrSim;
 
-class SmithWaterman {
-    public static function score(string $a, string $b, int $match = 2, int $mismatch = -1, int $gap = -1): int {
+class SmithWaterman
+{
+    public static function score(string $a, string $b, int $match = 2, int $mismatch = -1, int $gap = -1): int
+    {
         if (!mb_check_encoding($a, 'UTF-8') || !mb_check_encoding($b, 'UTF-8')) {
             throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
         }

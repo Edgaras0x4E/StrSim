@@ -1,14 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Edgaras\StrSim;
 
-class LCS {
-    public static function length(string $a, string $b): int {
+class LCS
+{
+    public static function length(string $a, string $b): int
+    {
         if (!mb_check_encoding($a, 'UTF-8') || !mb_check_encoding($b, 'UTF-8')) {
             throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
         }
-        
+
         $m = mb_strlen($a, 'UTF-8');
         $n = mb_strlen($b, 'UTF-8');
+        /** @var array<int, array<int, int>> */
         $dp = [];
 
         for ($i = 0; $i <= $m; $i++) {
