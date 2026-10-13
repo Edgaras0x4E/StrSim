@@ -321,6 +321,18 @@ class JaroWinklerTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $result, 1e-10);
     }
 
+    public function testSimilarityReferenceValues()
+    {
+        $this->assertEqualsWithDelta(0.9611111111, JaroWinkler::similarity("MARTHA", "MARHTA"), 1e-9);
+        $this->assertEqualsWithDelta(0.84, JaroWinkler::similarity("DWAYNE", "DUANE"), 1e-9);
+        $this->assertEqualsWithDelta(0.8133333333, JaroWinkler::similarity("DIXON", "DICKSONX"), 1e-9);
+    }
+
+    public function testSimilarityMaximumPrefixScale()
+    {
+        $this->assertSame(1.0, JaroWinkler::similarity("abcdwxyz", "abcdqrst", 0.25));
+    }
+
     public function testInvalidUtf8InputDistance()
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -38,6 +38,18 @@ class NeedlemanWunschTest extends TestCase
         $this->assertSame(20, NeedlemanWunsch::score("AAAA", "AAAA", match: 5, mismatch: -1, gap: -2));
     }
 
+    public function testCustomScoringWithMismatchAndGaps()
+    {
+        $this->assertSame(-4, NeedlemanWunsch::score("GATTACA", "GCAT", match: 2, mismatch: -1, gap: -2));
+        $this->assertSame(-2, NeedlemanWunsch::score("ACGTACGT", "ACT", match: 1, mismatch: -3, gap: -1));
+        $this->assertSame(0, NeedlemanWunsch::score("AB", "AC", match: 1, mismatch: -1, gap: -1));
+        $this->assertSame(-1, NeedlemanWunsch::score("AB", "AC", match: 1, mismatch: -3, gap: -1));
+        $this->assertSame(1, NeedlemanWunsch::score("AB", "AC", match: 1, mismatch: 0, gap: -1));
+        $this->assertSame(0, NeedlemanWunsch::score("ACGT", "AT", match: 1, mismatch: -1, gap: -1));
+        $this->assertSame(-2, NeedlemanWunsch::score("ACGT", "AT", match: 1, mismatch: -1, gap: -2));
+        $this->assertSame(-2, NeedlemanWunsch::score("AT", "ACGT", match: 1, mismatch: -1, gap: -2));
+    }
+
     public function testGapOnly()
     { 
         $this->assertSame(-1, NeedlemanWunsch::score("A", "AAA"));

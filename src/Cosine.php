@@ -6,7 +6,7 @@ class Cosine {
         if (!mb_check_encoding($a, 'UTF-8') || !mb_check_encoding($b, 'UTF-8')) {
             throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
         }
-        
+
         $tokensA = self::countMbChars($a);
         $tokensB = self::countMbChars($b);
         $dot = 0;
@@ -22,24 +22,21 @@ class Cosine {
             $normB += $v * $v;
         }
 
-        return ($normA && $normB) ? $dot / (sqrt($normA) * sqrt($normB)) : 0;
+        return ($normA && $normB) ? min(1.0, $dot / sqrt($normA * $normB)) : 0.0;
     }
 
     private static function countMbChars(string $str): array {
-        $chars = [];
-        $length = mb_strlen($str, 'UTF-8');
-        
-        for ($i = 0; $i < $length; $i++) {
-            $char = mb_substr($str, $i, 1, 'UTF-8');
-            $chars[$char] = ($chars[$char] ?? 0) + 1;
-        }
-        
-        return $chars;
+        return array_count_values(mb_str_split($str, 1, 'UTF-8'));
     }
 
     public static function similarityFromVectors(array $vecA, array $vecB): float {
         if (count($vecA) !== count($vecB)) {
             throw new \InvalidArgumentException("Vectors must be the same length.");
+        }
+
+        if (array_diff_key($vecA, $vecB)) {
+            $vecA = array_values($vecA);
+            $vecB = array_values($vecB);
         }
 
         $dot = 0.0;
@@ -53,6 +50,11 @@ class Cosine {
             $normB += $valB * $valB;
         }
 
-        return ($normA && $normB) ? $dot / (sqrt($normA) * sqrt($normB)) : 0.0;
+        if ($normA != 0.0 && $normB != 0.0) {
+            $similarity = $dot / (sqrt($normA) * sqrt($normB));
+            return is_nan($similarity) ? $similarity : max(-1.0, min(1.0, $similarity));
+        }
+
+        return 0.0;
     }
 }

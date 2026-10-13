@@ -49,6 +49,24 @@ class MongeElkanTest extends TestCase
         $this->assertEqualsWithDelta(0.0, MongeElkan::similarity("test", ""), 1e-10);
     }
 
+    public function testEmptyFirstArgument()
+    {
+        $this->assertEqualsWithDelta(0.0, MongeElkan::similarity("", "test"), 1e-10);
+    }
+
+    public function testWhitespaceOnlyInput()
+    {
+        $this->assertEqualsWithDelta(1.0, MongeElkan::similarity("   ", "\t"), 1e-10);
+        $this->assertEqualsWithDelta(1.0, MongeElkan::similarity("   ", ""), 1e-10);
+        $this->assertEqualsWithDelta(0.0, MongeElkan::similarity("   ", "test"), 1e-10);
+        $this->assertEqualsWithDelta(0.0, MongeElkan::similarity("test", "   "), 1e-10);
+    }
+
+    public function testPartialMatchReferenceValue()
+    {
+        $this->assertEqualsWithDelta(0.8955555556, MongeElkan::similarity("john smith", "jon smythe"), 1e-9);
+    }
+
     public function testMultibyteIdenticalSentences()
     {
         $this->assertEqualsWithDelta(1.0, MongeElkan::similarity("café latte", "café latte"), 1e-10);

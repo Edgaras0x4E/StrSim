@@ -163,4 +163,42 @@ class CosineTest extends TestCase
         $invalid = "\xFF\xFF";
         Cosine::similarity($invalid, "test");
     }
+
+    public function testIdenticalStringsReturnExactlyOne()
+    {
+        $letters = range('a', 'z');
+        for ($n = 1; $n <= 26; $n++) {
+            $s = implode('', array_slice($letters, 0, $n));
+            $this->assertSame(1.0, Cosine::similarity($s, $s), "length $n");
+        }
+        $this->assertSame(1.0, Cosine::similarity("listen", "silent"));
+        $this->assertSame(1.0, Cosine::similarity("hello", "hello"));
+    }
+
+    public function testExactValueForReadmeExample()
+    {
+        $this->assertSame(0.6, Cosine::similarity("night", "nacht"));
+    }
+
+    public function testVectorResultsStayInRange()
+    {
+        $this->assertSame(1.0, Cosine::similarityFromVectors([1, 1, 1], [1, 1, 1]));
+        $this->assertSame(-1.0, Cosine::similarityFromVectors([1, 1, 1], [-1, -1, -1]));
+    }
+
+    public function testVectorsWithSameKeysInDifferentOrderAreMatchedByKey()
+    {
+        $this->assertEqualsWithDelta(1.0, Cosine::similarityFromVectors(['x' => 1, 'y' => 0], ['y' => 0, 'x' => 1]), 1e-12);
+    }
+
+    public function testVectorsWithDifferentKeysAreComparedByPosition()
+    {
+        $this->assertEqualsWithDelta(1.0, Cosine::similarityFromVectors([0 => 1, 2 => 3], [1, 3]), 1e-12);
+        $this->assertEqualsWithDelta(0.0, Cosine::similarityFromVectors(['a' => 1, 'b' => 0], ['c' => 0, 'd' => 1]), 1e-12);
+    }
+
+    public function testVectorWithNanReturnsNanWithoutWarning()
+    {
+        $this->assertNan(Cosine::similarityFromVectors([NAN, 1.0], [1.0, 1.0]));
+    }
 }
