@@ -7,24 +7,28 @@ class SmithWaterman {
             throw new \InvalidArgumentException("Input strings must be valid UTF-8.");
         }
 
-        $m = mb_strlen($a, 'UTF-8');
-        $n = mb_strlen($b, 'UTF-8');
-        $dp = array_fill(0, $m + 1, array_fill(0, $n + 1, 0));
+        $charsA = mb_str_split($a, 1, 'UTF-8');
+        $charsB = mb_str_split($b, 1, 'UTF-8');
+        $m = count($charsA);
+        $n = count($charsB);
+
+        $prev = array_fill(0, $n + 1, 0);
         $max = 0;
 
         for ($i = 1; $i <= $m; $i++) {
-            $charA = mb_substr($a, $i - 1, 1, 'UTF-8');
+            $cur = [0];
+            $charA = $charsA[$i - 1];
             for ($j = 1; $j <= $n; $j++) {
-                $charB = mb_substr($b, $j - 1, 1, 'UTF-8');
-                $score = ($charA === $charB) ? $match : $mismatch;
-                $dp[$i][$j] = max(
+                $score = ($charA === $charsB[$j - 1]) ? $match : $mismatch;
+                $cur[$j] = max(
                     0,
-                    $dp[$i - 1][$j - 1] + $score,
-                    $dp[$i - 1][$j] + $gap,
-                    $dp[$i][$j - 1] + $gap
+                    $prev[$j - 1] + $score,
+                    $prev[$j] + $gap,
+                    $cur[$j - 1] + $gap
                 );
-                $max = max($max, $dp[$i][$j]);
+                $max = max($max, $cur[$j]);
             }
+            $prev = $cur;
         }
 
         return $max;

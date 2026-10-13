@@ -38,6 +38,17 @@ class SmithWatermanTest extends TestCase
         $this->assertSame(20, SmithWaterman::score("AAAA", "AAAA", match: 5, mismatch: -1, gap: -2));
     }
 
+    public function testCustomScoringWithMismatchAndGaps()
+    {
+        $this->assertSame(13, SmithWaterman::score("TGTTACGG", "GGTTGACTA", match: 3, mismatch: -3, gap: -2));
+        $this->assertSame(4, SmithWaterman::score("GATTACA", "GCATGCU", match: 2, mismatch: -3, gap: -2));
+        $this->assertSame(3, SmithWaterman::score("ABD", "ACD", match: 2, mismatch: -1, gap: -5));
+        $this->assertSame(2, SmithWaterman::score("ABD", "ACD", match: 2, mismatch: -3, gap: -5));
+        $this->assertSame(4, SmithWaterman::score("ACGT", "AT", match: 3, mismatch: -1, gap: -1));
+        $this->assertSame(3, SmithWaterman::score("ACGT", "AT", match: 3, mismatch: -1, gap: -2));
+        $this->assertSame(3, SmithWaterman::score("AT", "ACGT", match: 3, mismatch: -1, gap: -2));
+    }
+
     public function testSubstringAlignment()
     { 
         $this->assertSame(4, SmithWaterman::score("ACGT", "CG"));

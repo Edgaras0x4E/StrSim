@@ -37,6 +37,13 @@ class DamerauLevenshteinTest extends TestCase
         $this->assertSame(3, DamerauLevenshtein::distance("ca", "abc"));
     }
 
+    public function testOptimalStringAlignmentVariant()
+    {
+        $this->assertSame(3, DamerauLevenshtein::distance("CA", "ABC"));
+        $this->assertSame(1, DamerauLevenshtein::distance("CA", "AC"));
+        $this->assertSame(1, DamerauLevenshtein::distance("AC", "ABC"));
+    }
+
     public function testEmptyToNonEmpty()
     {
         $this->assertSame(4, DamerauLevenshtein::distance("", "test"));

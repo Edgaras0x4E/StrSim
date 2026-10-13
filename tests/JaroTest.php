@@ -251,6 +251,15 @@ class JaroTest extends TestCase
         $this->assertLessThan(1.0, $result);
     }
 
+    public function testSimilarityReferenceValues()
+    {
+        $this->assertEqualsWithDelta(0.9444444444, Jaro::similarity("MARTHA", "MARHTA"), 1e-9);
+        $this->assertEqualsWithDelta(0.8222222222, Jaro::similarity("DWAYNE", "DUANE"), 1e-9);
+        $this->assertEqualsWithDelta(0.7666666667, Jaro::similarity("DIXON", "DICKSONX"), 1e-9);
+        $this->assertEqualsWithDelta(0.8962962963, Jaro::similarity("JELLYFISH", "SMELLYFISH"), 1e-9);
+        $this->assertEqualsWithDelta(0.7333333333, Jaro::similarity("CRATE", "TRACE"), 1e-9);
+    }
+
     public function testInvalidUtf8InputDistance()
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -134,4 +134,22 @@ class LevenshteinTest extends TestCase
     {
         $this->assertSame(1, Levenshtein::distance("👍", "👍🏽"));
     }
+
+    public function testSymmetry()
+    {
+        $pairs = [["kitten", "sitting"], ["", "abc"], ["café", "caffe"], ["🚀🌟", "⭐"], ["flaw", "lawn"]];
+        foreach ($pairs as [$a, $b]) {
+            $this->assertSame(Levenshtein::distance($a, $b), Levenshtein::distance($b, $a));
+        }
+    }
+
+    public function testMatchesBuiltinLevenshteinOnAscii()
+    {
+        mt_srand(42);
+        for ($k = 0; $k < 200; $k++) {
+            $a = substr(str_shuffle(str_repeat('abcd', 4)), 0, mt_rand(0, 12));
+            $b = substr(str_shuffle(str_repeat('abcd', 4)), 0, mt_rand(0, 12));
+            $this->assertSame(levenshtein($a, $b), Levenshtein::distance($a, $b), "'$a' vs '$b'");
+        }
+    }
 }
